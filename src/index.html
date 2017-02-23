@@ -11,32 +11,6 @@
     <script type="text/javascript">
         document.write(navigator.userAgent)
         console.log(UAInfo)
-        var uaInfo = {
-            browser_name: {name: '浏览器名称', value: UAInfo.browser_name},
-            browser_ver: {name: '浏览器版本', value: UAInfo.browser_ver},
-            os_name: {name: '操作系统名称', value: UAInfo.os_name},
-            os_bit: {name: '操作系统位数', value: UAInfo.os_bit},
-            os_ver: {name: '操作系统版本', value: UAInfo.os_ver},
-            client: {name: '客户端类型', value: UAInfo.client}
-        };
-        
-        var body = document.getElementById('body');
-        var ol = document.createElement('ol');
-        for(var info in uaInfo){
-            var li = document.createElement('li');
-            var strong = document.createElement('strong');
-            var span = document.createElement('span');
-
-            strong.innerHTML = uaInfo[info].name + '：';
-            span.innerHTML = uaInfo[info].value;
-
-            li.appendChild(strong);
-            li.appendChild(span);
-
-            ol.appendChild(li);
-        }
-
-        body.appendChild(ol);
     </script>
 </body>
 </html>
