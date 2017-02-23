@@ -7,43 +7,97 @@
     'use strict';
     function BrowserTest() {
         this.ua = navigator.userAgent;
+
+        /**
+         * [uaInfo 浏览器信息]
+         * @type {Object}
+         */
         this.uaInfo = {
-            browser_name: '',
-            browser_ver: '',
-            os_name: '',
-            os_bit: '',
-            client: ''
+            browser: {},
+            os_name: '', // 操作系统名称
+            os_bit: '', // 操作系统位数
+            os_ver: '', // 操作系统版本
+            client: '' // 客户端类型
         };
 
-        this.regexpByBrowser = {
+        /**
+         * [regexp 各匹配点正则表达式]
+         * @type {Object}
+         */
+        this.regexp = {
             browser: {
-                ie: '',
-                chrome: '',
-                ie11: '',
-                firefox: '',
-                edge: '',
-                safari: '',
-                opera: ''
+                IE: /MSIE\ (\d+)/gi, // IE 浏览器
+                IE11: /rv:11\.0/gi, // IE11 浏览器
+                Edge: /Edge(\/\d+)/gi, // IE Edge 浏览器
+                Chrome: /Chrome\/(\d+)/gi, // Chrome 浏览器
+                FireFox: /Firefox\/(\d+)/gi, // 火狐浏览器
+                Safari: /Safari\/(\d+)/gi, // Safari 浏览器
+                Opera: /OPR\/(\d+)/gi, // Opera 浏览器
+                Wecat: /MicroMessenger\/(\d+)/gi // 微信内置浏览器
             },
             os: {
-                window: '',
-                osx: '',
-                ios: '',
-                andriod: '',
-                linux: ''
+                Window: /Windows NT (\d+\.\d+); (WOW\d*){0,1}/gi, // Windows 操作系统
+                // osx: '', // 苹果桌面操作系统
+                IOS: /iP.*; .* OS (\d+_\d)/i, // 苹果移动设备操作系统
+                Andriod: /Linux; U;{0,1} Android (\d+\.\d+)/gi, // 安卓
+                // linux: '' // Linux
             },
             client: {
-                pc: '',
-                iphone: '',
-                ipad: '',
-                andriod: ''
+                // pc: '', // PC设备
+                iPhone: /iPhone/gi, // 苹果手机
+                iPad: /iPad/gi, // 苹果平板设备
+                Andriod: /Android/gi // 安卓设备
+            },
+            engine: {
+                WebKit:'',
+                Trident: '',
+                Gecko: '',
+                AppleWebKit: '',
             }
 
         };
     }
 
     BrowserTest.prototype.start = function () { // 浏览器检测启动方法
-        this.testOthers();
+        // this.testOthers();
+        this.testBrowser();
+        this.testOS();
+
+        window.UAInfo = this.uaInfo;
+    };
+
+
+    BrowserTest.prototype.testBrowser = function(){
+        var ua = this.ua;
+        var reBrowser = this.regexp.browser;
+
+        for(var browser in reBrowser){
+            var result = reBrowser[browser].exec(ua);
+            if(result){
+                this.uaInfo.browser[browser] = result[1];
+            }else{
+                this.uaInfo.browser[browser] = null;
+            }
+        }
+    };
+
+    /**
+     * [testOS 测试操作系统信息]
+     * @return {[type]} [description]
+     */
+    BrowserTest.prototype.testOS = function(){
+        var ua = this.ua;
+        var reOS = this.regexp.os;
+
+        for(var os in reOS){
+            var result = reOS[os].exec(ua);
+            console.log(result)
+            if(result){
+                this.uaInfo.os_name = os;
+                this.uaInfo.os_ver = result[1];
+                this.uaInfo.os_bit = result[2] ? result[2] : null;
+            }
+        }
     };
 
     /**
@@ -54,9 +108,9 @@
         var ua = this.ua;
         var result;
 
-        var reIE = /MSIE\ (\d+)/;
-        var reIEEdge = /Edge(\/\d+)/;
-        var re11 = /rv/;
+        var reIE = this.regexp.browser.ie;
+        var reIEEdge = this.regexp.browser.edge;
+        var re11 = this.regexp.browser.ie11;
         var ieVer;
 
         var ieType = ua.match(reIE);
@@ -67,7 +121,7 @@
         } else if (reIEEdge.test(ua)) {
             ieVer = 'edge';
             result = {type: 'ie', ver: ieVer};
-        } else if (re11.test(ua) && 'ActiveXObject' in window) {
+        } else if (re11.test(ua)) {
             ieVer = '11';
             result = {type: 'ie', ver: ieVer};
         } else {
@@ -85,7 +139,7 @@
         var ua = this.ua;
         var result;
 
-        var reChrome = /Chrome\/(\d+)/;
+        var reChrome = this.regexp.browser.chrome;
         var chromeVer;
 
         var chromeType = ua.match(reChrome);
@@ -109,7 +163,7 @@
         var ua = this.ua;
         var result;
 
-        var reFirefox = /Firefox\/(\d+)/;
+        var reFirefox = this.regexp.browser.firefox;
         var firefoxVer;
 
         var firefoxType = ua.match(reFirefox);
@@ -134,7 +188,6 @@
         var ieResult = this.testIE();
         var chromeResult = this.testChrome();
         var firefoxResult = this.testFireFox();
-
         if (ieResult.type) {
             window.BrowserInfo = ieResult;
         } else if (chromeResult.type) {
@@ -146,9 +199,6 @@
             console.error('不是你的错，就是我的错，还没研究出如何判断你的浏览器');
         }
     };
-
-
-
 
     var _BrowserTest = new BrowserTest();
 
