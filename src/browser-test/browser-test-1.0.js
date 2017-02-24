@@ -27,7 +27,7 @@
             browser: {
                 IE: /MSIE\ (\d+)/ig, // IE 浏览器
                 IE11: /rv:11\.0/ig, // IE11 浏览器
-                Edge: /Edge(\/\d+)/ig, // IE Edge 浏览器
+                Edge: /Edge\/(\d+)/ig, // IE Edge 浏览器
                 Chrome: /Chrome\/(\d+)/ig, // Chrome 浏览器
                 FireFox: /Firefox\/(\d+)/ig, // 火狐浏览器
                 Safari: /Safari\/(\d+)/ig, // Safari 浏览器
@@ -35,17 +35,22 @@
                 Wecat: /MicroMessenger\/(\d+)/ig // 微信内置浏览器
             },
             os: {
-                Window: /Windows\ NT\ (\d+\.\d+);\ (WOW\d*){0,1}/ig, // Windows 操作系统
-                MacOS: /Mac\ OS\ X\ (\d+_\d+_\d+)/, // 苹果桌面操作系统
-                IOS: /iP.*;\ .*\ OS\ (\d+_\d)/ig, // 苹果移动设备操作系统
-                Andriod: /Android\ (\d+\.\d+)/ig, // 安卓
-                linux: /Linux/ // Linux
+                Windows: /Windows\ NT\ (\d+\.\d+);\ (WOW\d*){0,1}/ig, // Windows 操作系统
+                MacOS: /Mac\ OS\ X\ (\d{0,9}_?\d{0,9}_?\d{0,9})/, // 苹果桌面操作系统
+                IOS: /iP.*;.*\ OS\ (\d+_?\d+_?\d{0,9})/ig, // 苹果移动设备操作系统
+                Andriod: /Android\ (\d{0,9}\.?\d{0,9}\.?\d{0,9})/ig, // 安卓
+                Linux: /Linux/ig, // Linux
+                BlackBerry: /BB(\d+)/ig, // 黑莓
+                Tablet: /Tablet\ OS\ (\d{0,9}\.?\d{0,9}\.?\d{0,9})/ig, // 黑莓
+                // KindleFHD: /KFAPWI\ Build\/(\s+\d+)/ig // 黑莓
             },
             client: {
-                PC: /Windows/, // PC设备
+                PC: /Windows|Mac\ OS\ X\ /ig, // PC设备
                 iPhone: /iPhone/ig, // 苹果手机
                 iPad: /iPad/ig, // 苹果平板设备
-                Andriod: /Android/ig // 安卓设备
+                Andriod: /Android/ig, // 安卓设备
+                Moblie: /iPhone|Android|BB\d+|PlayBook/ig,
+                Pad: /iPad/ig
             },
             enigne: {
                 WebKit:/WebKit\/(\d+)/ig,
@@ -74,17 +79,18 @@
             for(var item in _re){
             	var result = _re[item].exec(ua);
             	if(result){
-            		if(re === 'os'){
+            		if(re === 'client'){
             			this.uaInfo[re][item] = item;
-            			this.uaInfo[re]['ver'] = result[1];
             		}else{
-            			this.uaInfo[re][item] = result[1];
+            			this.uaInfo[re][item] = result[1] ? result[1] : item;
             		}
             	}else{
             		this.uaInfo[re][item] = null;
             	}
             }
         }
+
+        return this.uaInfo;
     };
 
     /**
@@ -102,6 +108,8 @@
                 this.uaInfo.browser[browser] = null;
             }
         }
+
+        return this.uaInfo.browser;
     };
 
     /**
@@ -120,6 +128,8 @@
                 this.uaInfo.os[os] = null;
             }
         }
+
+        return this.uaInfo.os;
     };
 
     /**
@@ -137,6 +147,8 @@
         		this.UAInfo.client[client] = null;
         	}
         }
+
+        return this.uaInfo.client;
     };
 
     /**
@@ -154,6 +166,8 @@
         		this.UAInfo.enigne[enigne] = null;
         	}
         }
+
+        return this.uaInfo.enigne;
     };
 
    	var _BrowserTest = new BrowserTest();

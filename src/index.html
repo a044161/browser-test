@@ -2,15 +2,92 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>browser-test</title>
 </head>
 <body>
-	<h1>请使用F12查看console</h1>
+	<h1>浏览器信息详情</h1>
     <div id="body"></div>
 	<script type="text/javascript" src="./browser-test/browser-test-1.0.js"></script>
     <script type="text/javascript">
-        document.write(navigator.userAgent)
-        console.log(UAInfo)
+        document.write(navigator.userAgent);
+        console.log(UAInfo);
+        console.log(navigator);
+        var uaInfo = {
+            browser_name: {name:'浏览器名称：', value: ''},
+            browser_ver: {name:'浏览器版本：', value: ''},
+            os_name: {name:'操作系统名称：', value: ''},
+            os_ver: {name:'操作系统版本：', value: ''},
+            client: {name:'平台名称：', value: ''},
+            enigne: {name:'内核名称：', value: ''},
+            enigne_ver: {name:'内核版本：', value: ''}
+        }
+        for(var info in UAInfo){
+            var infoItem = UAInfo[info];
+            for(var item in infoItem){
+                if(infoItem[item]){
+                    switch(info) {
+                        case 'browser':
+                            if(uaInfo.browser_name.value){
+                                uaInfo.browser_name.value += '/' +  item;
+                                uaInfo.browser_ver.value +=  '/' + infoItem[item];
+                            }else{
+                                uaInfo.browser_name.value = item;
+                                uaInfo.browser_ver.value = infoItem[item];
+                            }
+                            
+                            break;
+                        case 'os':
+                            if(uaInfo.os_name.value){
+                                uaInfo.os_name.value += '/' + item;
+                                uaInfo.os_ver.value += '/' + infoItem[item];
+                            }else{
+                                uaInfo.os_name.value = item;
+                                uaInfo.os_ver.value = infoItem[item];
+                            }
+                            
+                            break;
+                        case 'client':
+                            if(uaInfo.client.value){
+                                uaInfo.client.value += '/' + item;
+                            }else{
+                               uaInfo.client.value = item; 
+                            }
+                            break;
+                        case 'enigne':
+                            if(uaInfo.enigne.value){
+                                uaInfo.enigne.value += '/' + item;
+                                uaInfo.enigne_ver.value += '/' + infoItem[item];
+                            }else{
+                                uaInfo.enigne.value = item;
+                                uaInfo.enigne_ver.value = infoItem[item];
+                            }
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        var body = document.getElementById('body');
+        var ol = document.createElement('ol');
+
+        for(var data in uaInfo){
+            var li = document.createElement('li');
+            var b = document.createElement('b');
+            var text = document.createElement('span');
+
+            b.innerHTML = uaInfo[data].name;
+            text.innerHTML = uaInfo[data].value;
+
+            li.appendChild(b);
+            li.appendChild(text);
+
+            ol.appendChild(li);
+        }
+
+        body.appendChild(ol);
+
     </script>
 </body>
 </html>
