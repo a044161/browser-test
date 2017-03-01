@@ -11,14 +11,15 @@
 		this[name] = factory();
 	}
 
-}('Test', function(){
+}('Test', function(testString){
 	"use strict";
 
-	var Test = function(){
-		this.a = 'this is Test a';
+	var Test = function(testString){
+		this.a = testString ? testString : 'this is Test a';
 	};
 
 	Test.prototype.show = function(){
+		console.log(this.a)
 		return '1';
 	};
 

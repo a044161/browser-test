@@ -1,3 +1,3 @@
-var test = require('./require-test.js');
+var test = require('../browser-test/browser-test-1.1.js');
 
-test.show();
+console.log(test.customUA('a'));

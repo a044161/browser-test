@@ -1,12 +1,30 @@
 /**
- * [浏览器检测 1.0]
- * 用于检测浏览器的版本信息
- * 直接将信息写入window，直接获取BrowserInfo即可获得浏览器信息
+ * [浏览器检测 1.1]
+ * 用于检测浏览器的版本信息，加入兼容AMD、CMD写法
+ * 在浏览器端直接查看UAInfo即可
+ * 其它则依据AMD、CMD写法进行调用，如 browserTest = require('browser-test.js');
  */
-(function () {
+;(function (global, factory) {
     'use strict';
-    function BrowserTest() {
-        this.ua = navigator.userAgent;
+
+    var isDefine = typeof define === 'object';
+    var isExports = typeof module === "object" && typeof module.exports === "object" ;
+
+    if(isDefine){
+        define(factory);
+    }else if(isExports){
+        module.exports = factory(global,true);
+    }else{
+        factory(global);
+    }
+})(typeof window !== 'undefined' ? window : this, function(window, noGlobal){
+    var BrowserTest = function() {
+        // 版本号
+        this.version = '1.1';
+
+        // 获取浏览器UA信息，对nodejs环境做兼容处理
+        this.ua = typeof window.navigator !== 'undefined' ? window.navigator.userAgent : '';
+
         /**
          * [uaInfo 浏览器信息]
          * @type {Object}
@@ -60,26 +78,30 @@
         };
     }
 
-    BrowserTest.prototype.start = function () { // 浏览器检测启动方法
-        this.testFull();
-        window.UAInfo = this.uaInfo;
+    /**
+     * [customUA 自定义UA字符串测试]
+     * @param  {String} uaString [自定义的字符串]
+     * @return {Object}          [类型判断结果]
+     */
+    BrowserTest.prototype.customUA = function(uaString){
+        return this.testFull(uaString);
     };
 
     /**
      * [testBrowser 测试所有信息]
      */
-    BrowserTest.prototype.testFull = function(){
-        var ua = this.ua;
+    BrowserTest.prototype.testFull = function(uaString){
+        var ua = uaString ? uaString : this.ua;
         var regexps = this.regexp;
 
         for(var re in regexps){
-        	var _re = regexps[re];
+            var _re = regexps[re];
             for(var item in _re){
-            	var result = _re[item].exec(ua);
-            	if(result){
-            		if(re === 'client'){
-            			this.uaInfo[re][item] = item;
-            		}else if(re === 'os' && result[2]){ // 获取操作系统的位数
+                var result = _re[item].exec(ua);
+                if(result){
+                    if(re === 'client'){
+                        this.uaInfo[re][item] = item;
+                    }else if(re === 'os' && result[2]){ // 获取操作系统的位数
                         this.uaInfo[re][item] = result[1]; // 操作系统版本
                         this.uaInfo[re].bit = result[2]; // 操作系统位数
                     }else{
@@ -90,94 +112,19 @@
                         }else{
                             this.uaInfo[re][item] = item;
                         }
-            		}
-            	}else{
-            		this.uaInfo[re][item] = null;
-            	}
+                    }
+                }else{
+                    this.uaInfo[re][item] = null;
+                }
             }
         }
-
         return this.uaInfo;
     };
 
-    /**
-     * [testBrowser 测试浏览器信息]
-     */
-    BrowserTest.prototype.testBrowser = function(){
-        var ua = this.ua;
-        var reBrowser = this.regexp.browser;
+    if(!noGlobal){
+        var _BrowserTest = new BrowserTest;
+        window.UAInfo = _BrowserTest.testFull();
+    }
 
-        for(var browser in reBrowser){
-            var result = reBrowser[browser].exec(ua);
-            if(result){
-                this.uaInfo.browser[browser] = result[1];
-            }else{
-                this.uaInfo.browser[browser] = null;
-            }
-        }
-
-        return this.uaInfo.browser;
-    };
-
-    /**
-     * [testOS 测试操作系统信息]
-     */
-    BrowserTest.prototype.testOS = function(){
-        var ua = this.ua;
-        var reOS = this.regexp.os;
-
-        for(var os in reOS){
-            var result = reOS[os].exec(ua);
-            if(result){
-                this.uaInfo.os[os] = os;
-                this.uaInfo.os[ver] = result[1];
-            }else{
-                this.uaInfo.os[os] = null;
-            }
-        }
-
-        return this.uaInfo.os;
-    };
-
-    /**
-     * [textClient 测试客户端类型]
-     */
-    BrowserTest.prototype.textClient = function(){
-        var ua = this.ua;
-        var reClient = this.regexp.client;
-
-        for(var client in reClient){
-        	var result = reClient[client].exec(ua);
-        	if(result){
-        		this.UAInfo.client[client] = true;
-        	}else{
-        		this.UAInfo.client[client] = null;
-        	}
-        }
-
-        return this.uaInfo.client;
-    };
-
-    /**
-     * [textEnigne 测试浏览器内核类型]
-     */
-    BrowserTest.prototype.textEnigne = function(){
-    	var ua = this.ua;
-        var reEnigne = this.regexp.enigne;
-
-        for(var enigne in reEnigne){
-        	var result = reEnigne[enigne].exec(ua);
-        	if(result){
-        		this.UAInfo.enigne[enigne] = result[1];
-        	}else{
-        		this.UAInfo.enigne[enigne] = null;
-        	}
-        }
-
-        return this.uaInfo.enigne;
-    };
-
-   	var _BrowserTest = new BrowserTest();
-   	_BrowserTest.start();
-
-})();
+    return new BrowserTest;
+});
